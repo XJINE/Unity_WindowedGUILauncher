@@ -1,0 +1,16 @@
+{
+    "name": "WindowedGUILauncher",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3afd393eaeaad1342837e3076d8fb51f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
