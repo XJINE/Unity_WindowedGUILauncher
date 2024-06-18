@@ -5,6 +5,7 @@ public class Sample : MonoBehaviour
 {
     private WindowedGUILauncher _guiLauncher = new ();
 
+    private FlexWindow _window   = new ("Window");
     private IntGUI    _intGUI    = new ("INT GUI",   0, 100);
     private FloatGUI  _floatGUI  = new ("Float GUI", 0, 100);
     private StringGUI _stringGUI = new ("String GUI");
@@ -31,6 +32,7 @@ public class Sample : MonoBehaviour
 
     private void OnGUI()
     {
-        _guiLauncher.Show();
+        _window.Show(() => { _guiLauncher.ShowMenu(); });
+        _guiLauncher.ShowWindows();
     }
 }

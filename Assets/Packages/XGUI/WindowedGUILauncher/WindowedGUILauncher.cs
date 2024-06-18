@@ -39,11 +39,24 @@ namespace XGUI
             return WindowedGUIActions.Remove(WindowedGUIActions.First(action => action.Menu.Title == itemName));
         }
 
-        public void Show()
+        // CAUTION:
+        // If GUI(Layout).Window is called inside another Window, the following error occurs.
+        // > GUI Error: You called GUI.Window inside a another window's function.
+        // > Ensure to call it in a OnGUI code path.
+        // So separate following functions to call the Window function outside another one.
+
+        public void ShowMenu()
         {
             foreach (var windowedGUI in WindowedGUIActions)
             {
                 windowedGUI.Window.IsVisible = windowedGUI.Menu.Show(windowedGUI.Window.IsVisible);
+            }
+        }
+
+        public void ShowWindows()
+        {
+            foreach (var windowedGUI in WindowedGUIActions)
+            {
                 windowedGUI.Window.Show(windowedGUI.GUIAction);
             }
         }
