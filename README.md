@@ -9,7 +9,7 @@ Show menu items to launch each GUI window. This is an extension of XGUI.
 You can use Package Manager or import it directly.
 
 ```
-https://github.com/XJINE/Unity_Unity_WindowedGUILauncher.git?path=Assets/Packages/XGUI/WindowedGUILauncher
+https://github.com/XJINE/Unity_WindowedGUILauncher.git?path=Assets/Packages/XGUI/WindowedGUILauncher
 ```
 
 ### Dependencies
