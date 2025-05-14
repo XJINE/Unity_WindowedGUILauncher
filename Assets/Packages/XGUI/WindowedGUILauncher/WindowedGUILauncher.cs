@@ -36,7 +36,12 @@ namespace XGUI
             {
                 Window.IsVisible = Menu.Show(Window.IsVisible);
 
-                if (Menu.Updated && Window.IsVisible)
+                if (!Menu.Updated)
+                {
+                    return;
+                }
+
+                if (Window.IsVisible)
                 {
                     var mousePos   = Input.mousePosition;
                         mousePos.y = Screen.height - mousePos.y; // Flip-Y
@@ -44,11 +49,29 @@ namespace XGUI
 
                     Window.Position = mousePos;
                 }
+                else
+                {
+                    CloseSubLauncherWindows(this);
+                }
             }
 
             public void ShowWindow()
             {
                 Window.Show(GUIAction);
+            }
+
+            private static void CloseSubLauncherWindows(WindowedGUIAction subAction)
+            {
+                if (subAction.SubLauncher == null)
+                {
+                    return;
+                }
+
+                foreach (var guiAction in subAction.SubLauncher.WindowedGUIActions)
+                {
+                    guiAction.Window.IsVisible = false;
+                    CloseSubLauncherWindows(guiAction);
+                }
             }
         }
 
