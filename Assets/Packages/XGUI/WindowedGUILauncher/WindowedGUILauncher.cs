@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace XGUI
 {
@@ -8,9 +9,21 @@ namespace XGUI
     {
         public class WindowedGUIAction
         {
-            public BoolGUI    Menu      { get; private set; }
-            public FlexWindow Window    { get; private set; }
-            public Action     GUIAction { get; private set; }
+            public BoolGUI             Menu        { get; }
+            public FlexWindow          Window      { get; }
+            public WindowedGUILauncher SubLauncher { get; }
+            public Action              GUIAction   { get; }
+
+            public WindowedGUIAction(string itemName)
+            {
+                Menu        = new BoolGUI   (itemName);
+                Window      = new FlexWindow(itemName){ IsVisible = false };
+                SubLauncher = new WindowedGUILauncher();
+                GUIAction   = () =>
+                {
+                    SubLauncher.ShowMenu();
+                };
+            }
 
             public WindowedGUIAction(string itemName, Action guiAction)
             {
@@ -18,20 +31,79 @@ namespace XGUI
                 Window    = new FlexWindow(itemName) { IsVisible = false };
                 GUIAction = guiAction;
             }
+
+            public void ShowMenu()
+            {
+                Window.IsVisible = Menu.Show(Window.IsVisible);
+
+                if (Menu.Updated && Window.IsVisible)
+                {
+                    var mousePos   = Input.mousePosition;
+                        mousePos.y = Screen.height - mousePos.y; // Flip-Y
+                        mousePos  += Vector3.one * 10;           // Small offset
+
+                    Window.Position = mousePos;
+                }
+            }
+
+            public void ShowWindow()
+            {
+                Window.Show(GUIAction);
+            }
         }
 
-        public List<WindowedGUIAction> WindowedGUIActions { get; private set; } = new();
+        public List<WindowedGUIAction> WindowedGUIActions { get; } = new();
 
         #region Method
 
         public void Add(string itemName, Action guiAction)
         {
-            WindowedGUIActions.Add(new WindowedGUIAction(itemName, guiAction));
+            var splitNames = SplitItemName(itemName);
+
+            if (splitNames.Length == 1)
+            {
+                WindowedGUIActions.Add(new WindowedGUIAction(itemName, guiAction));
+            }
+            else
+            {
+                var subLauncherTitle = splitNames[0];
+
+                var subLauncherAction = WindowedGUIActions.FirstOrDefault
+                    (windowedGUIAction => windowedGUIAction.Window.Title == subLauncherTitle);
+
+                if (subLauncherAction == null)
+                {
+                    subLauncherAction = new WindowedGUIAction(subLauncherTitle);
+                    WindowedGUIActions.Add(subLauncherAction);
+                }
+
+                subLauncherAction.SubLauncher.Add(splitNames[1], guiAction);
+            }
         }
 
         public void Insert(int index, string itemName, Action guiAction)
         {
-            WindowedGUIActions.Insert(index, new WindowedGUIAction(itemName, guiAction));
+            var splitNames = SplitItemName(itemName);
+
+            if (splitNames.Length == 1)
+            {
+                WindowedGUIActions.Insert(index, new WindowedGUIAction(itemName, guiAction));
+            }
+            else
+            {
+                var subLauncherTitle = splitNames[0];
+
+                var subLauncherAction = WindowedGUIActions.FirstOrDefault
+                                        (windowedGUIAction => windowedGUIAction.Window.Title == subLauncherTitle);
+
+                if (subLauncherAction == null)
+                {
+                    subLauncherAction = new WindowedGUIAction(subLauncherTitle);
+                    WindowedGUIActions.Add(subLauncherAction);
+                }
+
+                subLauncherAction.SubLauncher.Insert(index, splitNames[1], guiAction);
+            }
         }
 
         public bool Remove(string itemName)
@@ -49,7 +121,7 @@ namespace XGUI
         {
             foreach (var windowedGUI in WindowedGUIActions)
             {
-                windowedGUI.Window.IsVisible = windowedGUI.Menu.Show(windowedGUI.Window.IsVisible);
+                windowedGUI.ShowMenu();
             }
         }
 
@@ -57,7 +129,25 @@ namespace XGUI
         {
             foreach (var windowedGUI in WindowedGUIActions)
             {
-                windowedGUI.Window.Show(windowedGUI.GUIAction);
+                windowedGUI.ShowWindow();
+                windowedGUI.SubLauncher?.ShowWindows();
+            }
+        }
+
+        private static string[] SplitItemName(string itemName)
+        {
+            var slashIndex = itemName.IndexOf('/');
+
+            if (slashIndex != -1)
+            {
+                var beforeSlash = itemName[..slashIndex];
+                var afterSlash  = itemName[(slashIndex + 1)..];
+
+                return new []{ beforeSlash, afterSlash };
+            }
+            else
+            {
+                return new []{ itemName };
             }
         }
 

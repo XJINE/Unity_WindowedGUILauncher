@@ -1,7 +1,7 @@
 {
     "name"       : "com.xjine.windowed_gui_launcher",
     "displayName": "Windowed GUI Launcher", 
-    "version"    : "2.0.0",
+    "version"    : "1.1.0",
     "unity"      : "2022.3",
     "description": "Show menu items to launch each GUI window. This is an extension of XGUI.",
     "author"     :
